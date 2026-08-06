@@ -1,0 +1,25 @@
+name: Lint and test
+
+on:
+  push:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  run:
+    # macOS only: ghosttack drives Ghostty through its AppleScript dictionary,
+    # so there is no other platform to be correct on.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install
+        uses: ./.github/actions/install
+      - name: Check formatting
+        run: deno fmt --check
+      - name: Lint code
+        run: deno lint
+      - name: Type check
+        run: deno task check
+      - name: Run test suite
+        run: deno task test

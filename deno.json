@@ -1,0 +1,25 @@
+{
+  "name": "@camurphy/ghosttack",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./main.ts",
+  "exclude": [".claude", "dist"],
+  "publish": {
+    "exclude": ["tests", ".github"]
+  },
+  "tasks": {
+    "dev": "deno run -A main.ts",
+    "check": "deno check main.ts tests/",
+    "test": "deno test -A tests/",
+    "build": "deno compile --allow-read --allow-write --allow-run --allow-env --output dist/ghosttack main.ts",
+    "verify": "deno fmt --check && deno lint && deno task check && deno task test"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1",
+    "@std/path": "jsr:@std/path@^1",
+    "@std/toml": "jsr:@std/toml@^1"
+  },
+  "fmt": {
+    "lineWidth": 88
+  }
+}

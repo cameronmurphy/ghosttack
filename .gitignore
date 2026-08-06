@@ -1,0 +1,5 @@
+Brewfile.lock.json
+build/
+dist/
+*.tmp-*
+.claude/worktrees/

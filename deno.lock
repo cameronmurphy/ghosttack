@@ -6,7 +6,8 @@
     "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@1": "1.1.6",
-    "jsr:@std/toml@1": "1.0.11"
+    "jsr:@std/toml@1": "1.0.11",
+    "jsr:@std/yaml@1": "1.1.2"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -32,6 +33,9 @@
       "dependencies": [
         "jsr:@std/collections"
       ]
+    },
+    "@std/yaml@1.1.2": {
+      "integrity": "de612653c036749ba2044165e316f52412b0f0698afffb7ee80b5331d6d2abae"
     }
   },
   "workspace": {

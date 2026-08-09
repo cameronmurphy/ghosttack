@@ -1,24 +1,23 @@
 name: Build
+run-name: >-
+  Build ${{ github.event.workflow_run.head_branch || github.ref_name }}${{
+  github.event.workflow_run.display_title && format(' ({0})', github.event.workflow_run.display_title) || '' }}
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    tags: ['v*']
+  workflow_run:
+    workflows: ['Lint and test']
+    types: [completed]
 
 jobs:
-  # Every path into this workflow lints and tests first, so a tag can't build or release what main
-  # wouldn't. Waiting on the separate run of Lint and test only covers pushes to main; a tag pushed
-  # at the same time would race past it.
-  verify:
-    uses: ./.github/workflows/lint-and-test.yml
-
   build:
-    needs: verify
+    if: >-
+      ${{ !github.event.workflow_run
+      || (github.event.workflow_run.conclusion == 'success'
+      && (github.event.workflow_run.head_branch == 'main'
+      || startsWith(github.event.workflow_run.head_branch, 'v'))) }}
     runs-on: macos-latest
 
-    # macOS only. ghosttack builds tabs and splits through Ghostty's AppleScript dictionary, which
-    # exists nowhere else, so a Linux or Windows binary would compile and then refuse to run.
     strategy:
       matrix:
         target:
@@ -28,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install
         uses: ./.github/actions/install
@@ -44,7 +45,7 @@ jobs:
           path: dist/ghosttack-${{ matrix.target }}
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.event.workflow_run.head_branch, 'v')
     needs: build
     runs-on: ubuntu-latest
 
@@ -58,18 +59,17 @@ jobs:
           path: dist
           merge-multiple: true
 
-      # Tags can already have a release (they get one when publishing to JSR), and a run can be
-      # repeated, so create only when missing and let the upload overwrite.
       - name: Publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.workflow_run.head_branch }}
         run: |
-          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
-            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --generate-notes
-          gh release upload "$GITHUB_REF_NAME" dist/ghosttack-* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --generate-notes
+          gh release upload "$TAG" dist/ghosttack-* --repo "$GITHUB_REPOSITORY" --clobber
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.event.workflow_run.head_branch, 'v')
     needs: build
     runs-on: ubuntu-latest
 
@@ -80,6 +80,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Install
         uses: ./.github/actions/install

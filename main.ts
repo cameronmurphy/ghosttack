@@ -7,16 +7,16 @@
  * colours. Run `ghosttack` with no arguments to get started.
  */
 
-import { GhosttackError } from "./src/errors.ts";
-import { DEFAULT_STACK, stackExists } from "./src/paths.ts";
-import { cmdLs } from "./src/commands/ls.ts";
-import { cmdOobe } from "./src/commands/oobe.ts";
-import { cmdPane, cmdRun } from "./src/commands/run.ts";
-import { cmdRestart } from "./src/commands/restart.ts";
-import { cmdUp } from "./src/commands/up.ts";
+import { GhosttackError } from './src/errors.ts';
+import { DEFAULT_STACK, stackExists } from './src/paths.ts';
+import { cmdLs } from './src/commands/ls.ts';
+import { cmdOobe } from './src/commands/oobe.ts';
+import { cmdPane, cmdRun } from './src/commands/run.ts';
+import { cmdRestart } from './src/commands/restart.ts';
+import { cmdUp } from './src/commands/up.ts';
 
 /** Subcommand names can't double as stack names. */
-const RESERVED = ["ls", "restart", "run", "pane", "help"];
+const RESERVED = ['ls', 'restart', 'run', 'pane', 'help'];
 
 /**
  * With no stack named, build default.toml — the stack you start the day with.
@@ -34,34 +34,34 @@ async function dispatch(args: string[]) {
     case undefined:
       return await cmdDefault([]);
 
-    case "help":
-    case "--help":
-    case "-h":
+    case 'help':
+    case '--help':
+    case '-h':
       return await cmdOobe();
 
-    case "ls":
+    case 'ls':
       return await cmdLs(rest);
 
-    case "restart":
+    case 'restart':
       return await cmdRestart(rest);
 
     // Internal: these are what generated tabs and splits execute.
-    case "run":
-      if (!rest[1]) throw new GhosttackError("run needs a stack and a tab name.");
+    case 'run':
+      if (!rest[1]) throw new GhosttackError('run needs a stack and a tab name.');
       return await cmdRun(rest[0], rest[1]);
 
-    case "pane":
+    case 'pane':
       if (!rest[2]) {
         throw new GhosttackError(
-          "pane needs a stack, a tab name and a split number.",
+          'pane needs a stack, a tab name and a split number.',
         );
       }
       return await cmdPane(rest[0], rest[1], rest[2]);
 
     default:
       // `ghosttack --dry-run` should preview the default stack, not complain.
-      if (first === "--dry-run") return await cmdDefault(args);
-      if (first.startsWith("-")) {
+      if (first === '--dry-run') return await cmdDefault(args);
+      if (first.startsWith('-')) {
         throw new GhosttackError(`unknown option "${first}".`);
       }
       if (RESERVED.includes(first)) {
@@ -75,9 +75,9 @@ if (import.meta.main) {
   try {
     // Tabs and splits are built through Ghostty's AppleScript dictionary, which
     // is macOS-only. Say so plainly rather than failing at `osascript`.
-    if (Deno.build.os !== "darwin") {
+    if (Deno.build.os !== 'darwin') {
       throw new GhosttackError(
-        "ghosttack is macOS only — it drives Ghostty through AppleScript.",
+        'ghosttack is macOS only — it drives Ghostty through AppleScript.',
       );
     }
     await dispatch(Deno.args);

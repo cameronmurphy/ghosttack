@@ -1,4 +1,4 @@
-import { readState } from "../state.ts";
+import { readState } from '../state.ts';
 
 /**
  * Restart supervised panes in place.
@@ -8,7 +8,7 @@ import { readState } from "../state.ts";
  * killing a supervised pane's process by any other means has the same effect.
  */
 export async function cmdRestart(argv: string[]) {
-  const only = argv.find((a) => !a.startsWith("-"));
+  const only = argv.find((a) => !a.startsWith('-'));
 
   let panes = await readState();
   if (only) panes = panes.filter((s) => s.stack === only);
@@ -20,15 +20,15 @@ export async function cmdRestart(argv: string[]) {
 
   if (live.length === 0) {
     console.log(
-      `ghosttack: no supervised panes running${only ? ` for ${only}` : ""}` +
-        (skipped ? ` (${skipped} pane(s) not supervised).` : "."),
+      `ghosttack: no supervised panes running${only ? ` for ${only}` : ''}` +
+        (skipped ? ` (${skipped} pane(s) not supervised).` : '.'),
     );
     return;
   }
 
   for (const pane of live) {
     try {
-      Deno.kill(pane.pid!, "SIGTERM");
+      Deno.kill(pane.pid!, 'SIGTERM');
       console.log(`ghosttack: restarting ${pane.key} (pid ${pane.pid})`);
     } catch (e) {
       console.error(`ghosttack: could not signal ${pane.key}: ${e}`);
@@ -37,6 +37,6 @@ export async function cmdRestart(argv: string[]) {
 
   console.log(
     `\nghosttack: ${live.length} pane(s) will relaunch` +
-      (skipped ? `; ${skipped} left alone (not supervised).` : "."),
+      (skipped ? `; ${skipped} left alone (not supervised).` : '.'),
   );
 }

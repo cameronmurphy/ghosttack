@@ -1,4 +1,4 @@
-import { fail } from "./errors.ts";
+import { fail } from './errors.ts';
 
 /**
  * The palette.
@@ -12,15 +12,15 @@ import { fail } from "./errors.ts";
  * the nearest swatch.
  */
 const PALETTE = {
-  red: { emoji: "🔴", hex: "#e0453b" },
-  orange: { emoji: "🟠", hex: "#ef8a2b" },
-  yellow: { emoji: "🟡", hex: "#f5c542" },
-  green: { emoji: "🟢", hex: "#4aa338" },
-  blue: { emoji: "🔵", hex: "#3b82f6" },
-  purple: { emoji: "🟣", hex: "#9b59d0" },
-  brown: { emoji: "🟤", hex: "#8b5a2b" },
-  black: { emoji: "⚫", hex: "#2b2b2b" },
-  white: { emoji: "⚪", hex: "#f2f2f2" },
+  red: { emoji: '🔴', hex: '#e0453b' },
+  orange: { emoji: '🟠', hex: '#ef8a2b' },
+  yellow: { emoji: '🟡', hex: '#f5c542' },
+  green: { emoji: '🟢', hex: '#4aa338' },
+  blue: { emoji: '🔵', hex: '#3b82f6' },
+  purple: { emoji: '🟣', hex: '#9b59d0' },
+  brown: { emoji: '🟤', hex: '#8b5a2b' },
+  black: { emoji: '⚫', hex: '#2b2b2b' },
+  white: { emoji: '⚪', hex: '#f2f2f2' },
 } as const;
 
 export type ColorName = keyof typeof PALETTE;
@@ -65,7 +65,7 @@ export function colorEmoji(value: string, where: string): string {
 
   fail(
     `${where}: color must be a hex value or one of ` +
-      `${COLOR_NAMES.join(", ")} — got "${value}"`,
+      `${COLOR_NAMES.join(', ')} — got "${value}"`,
   );
 }
 

@@ -1,19 +1,19 @@
-import { loadStack, tabCommand, tabPanes, tabTitle } from "../config.ts";
-import { listStacks, stackDir, stackPath, tilde } from "../paths.ts";
-import { paneKey, type PaneState, readState } from "../state.ts";
+import { loadStack, tabCommand, tabPanes, tabTitle } from '../config.ts';
+import { listStacks, stackDir, stackPath, tilde } from '../paths.ts';
+import { paneKey, type PaneState, readState } from '../state.ts';
 
 /**
  * A pane is up while its supervisor is, whether it's running its command or
  * sitting at a shell. `readState` has already pruned dead supervisors.
  */
 function status(s: PaneState | undefined): string {
-  if (!s) return "down";
+  if (!s) return 'down';
   if (s.shell) return `shell ${s.supervisor}`;
   return `up ${s.supervisor}`;
 }
 
 export async function cmdLs(argv: string[]) {
-  const only = argv.find((a) => !a.startsWith("-"));
+  const only = argv.find((a) => !a.startsWith('-'));
   const names = only ? [only] : await listStacks();
 
   if (names.length === 0) {
@@ -33,7 +33,7 @@ export async function cmdLs(argv: string[]) {
     for (const tab of stack.tabs) {
       const main = state.find((s) => s.key === paneKey(name, tab.name, 0));
       console.log(
-        `  ${tabTitle(tab)}  [${status(main)}]  ${tabCommand(tab) ?? "shell"}` +
+        `  ${tabTitle(tab)}  [${status(main)}]  ${tabCommand(tab) ?? 'shell'}` +
           `  ${tilde(tab.dir)}`,
       );
 
@@ -41,8 +41,8 @@ export async function cmdLs(argv: string[]) {
       for (const { split, index, depth } of tabPanes(tab)) {
         const pane = state.find((s) => s.key === paneKey(name, tab.name, index));
         console.log(
-          `    ${"  ".repeat(depth)}└─ ${split.direction}` +
-            `  [${status(pane)}]  ${split.command ?? "shell"}`,
+          `    ${'  '.repeat(depth)}└─ ${split.direction}` +
+            `  [${status(pane)}]  ${split.command ?? 'shell'}`,
         );
       }
     }

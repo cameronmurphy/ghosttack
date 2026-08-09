@@ -1,5 +1,5 @@
-import { EXAMPLE_STACK } from "../example.ts";
-import { DEFAULT_STACK, listStacks, stackDir, stackPath, tilde } from "../paths.ts";
+import { EXAMPLE_STACK } from '../example.ts';
+import { DEFAULT_STACK, listStacks, stackDir, stackPath, tilde } from '../paths.ts';
 
 /**
  * First-run introduction: drop an example stack in the config directory and
@@ -8,7 +8,7 @@ import { DEFAULT_STACK, listStacks, stackDir, stackPath, tilde } from "../paths.
  */
 export async function cmdOobe() {
   const dir = stackDir();
-  const examplePath = stackPath("example");
+  const examplePath = stackPath('example');
 
   await Deno.mkdir(dir, { recursive: true });
 
@@ -22,17 +22,17 @@ export async function cmdOobe() {
 
   const stacks = await listStacks();
 
-  console.log("ghosttack — spin up a whole Ghostty workspace from one file.\n");
+  console.log('ghosttack — spin up a whole Ghostty workspace from one file.\n');
   console.log(`stacks live in  ${tilde(dir)}`);
 
   if (wrote) {
     console.log(
-      "\nwrote example.toml — two tabs, one with a split and a nested split.",
+      '\nwrote example.toml — two tabs, one with a split and a nested split.',
     );
   }
 
   if (stacks.length) {
-    console.log("\navailable stacks:");
+    console.log('\navailable stacks:');
     for (const s of stacks) console.log(`  ghosttack ${s}`);
   }
 
@@ -43,7 +43,7 @@ try it:
 
 then copy it to a name of your own and build that:
 
-  cp ${tilde(examplePath)} ${tilde(stackPath("webapp"))}
+  cp ${tilde(examplePath)} ${tilde(stackPath('webapp'))}
   ghosttack webapp
 
 name one ${DEFAULT_STACK}.toml and it becomes what you get from a bare

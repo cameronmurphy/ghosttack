@@ -1,7 +1,7 @@
-import { HOME } from "./paths.ts";
+import { HOME } from './paths.ts';
 
 /** Overridable so tests can use a scratch directory. */
-const STATE_DIR = Deno.env.get("GHOSTTACK_STATE_DIR") ??
+const STATE_DIR = Deno.env.get('GHOSTTACK_STATE_DIR') ??
   `${HOME}/.local/state/ghosttack`;
 
 export interface PaneState {
@@ -26,11 +26,10 @@ export interface PaneState {
 /** What a caller supplies; the rest is filled in as the pane runs. */
 export type PaneIdentity = Pick<
   PaneState,
-  "key" | "stack" | "tab" | "pane" | "dir" | "cmd"
+  'key' | 'stack' | 'tab' | 'pane' | 'dir' | 'cmd'
 >;
 
-export const paneKey = (stack: string, tab: string, pane: number): string =>
-  `${stack}.${tab}.${pane}`;
+export const paneKey = (stack: string, tab: string, pane: number): string => `${stack}.${tab}.${pane}`;
 
 /**
  * Encoded, because a pane key carries user-chosen names: a tab called
@@ -56,7 +55,7 @@ export function isAlive(pid: number | null): boolean {
   try {
     // Signal 0 isn't exposed by Deno.kill; SIGCONT is a no-op probe for a
     // process that is already running.
-    Deno.kill(pid, "SIGCONT");
+    Deno.kill(pid, 'SIGCONT');
     return true;
   } catch {
     return false;
@@ -81,7 +80,7 @@ export async function readState(): Promise<PaneState[]> {
 
   try {
     for await (const entry of Deno.readDir(STATE_DIR)) {
-      if (!entry.name.endsWith(".json")) continue;
+      if (!entry.name.endsWith('.json')) continue;
       const path = `${STATE_DIR}/${entry.name}`;
       try {
         const pane: PaneState = JSON.parse(await Deno.readTextFile(path));

@@ -1,19 +1,19 @@
-import { buildAppleScript } from "../applescript.ts";
-import { loadStack, paneCount } from "../config.ts";
-import { fail } from "../errors.ts";
-import { selfPath } from "../paths.ts";
+import { buildAppleScript } from '../applescript.ts';
+import { loadStack, paneCount } from '../config.ts';
+import { fail } from '../errors.ts';
+import { selfPath } from '../paths.ts';
 
 export async function cmdUp(name: string, argv: string[]) {
   const stack = await loadStack(name);
   const script = buildAppleScript(selfPath(), stack);
 
-  if (argv.includes("--dry-run")) {
+  if (argv.includes('--dry-run')) {
     console.log(script);
     return;
   }
 
-  const { success, stderr } = await new Deno.Command("osascript", {
-    args: ["-e", script],
+  const { success, stderr } = await new Deno.Command('osascript', {
+    args: ['-e', script],
   }).output();
 
   if (!success) {

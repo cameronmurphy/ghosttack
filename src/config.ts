@@ -1,9 +1,9 @@
-import { parse as parseToml } from "@std/toml";
-import { checkTint, colorEmoji } from "./colors.ts";
-import { fail } from "./errors.ts";
-import { expandHome, listStacks, stackPath } from "./paths.ts";
+import { parse as parseToml } from '@std/toml';
+import { checkTint, colorEmoji } from './colors.ts';
+import { fail } from './errors.ts';
+import { expandHome, listStacks, stackPath } from './paths.ts';
 
-export const DIRECTIONS = ["right", "left", "up", "down"] as const;
+export const DIRECTIONS = ['right', 'left', 'up', 'down'] as const;
 export type Direction = typeof DIRECTIONS[number];
 
 /**
@@ -60,8 +60,8 @@ export interface Stack {
 }
 
 function checkResume(resume: unknown, where: string) {
-  if (resume === undefined || typeof resume === "boolean") return;
-  if (typeof resume === "string" && resume.trim() !== "") return;
+  if (resume === undefined || typeof resume === 'boolean') return;
+  if (typeof resume === 'string' && resume.trim() !== '') return;
   fail(
     `${where}: resume must be true, false, or a command string — got ` +
       `${JSON.stringify(resume)}`,
@@ -80,7 +80,7 @@ export function parseStack(name: string, raw: string): Stack {
     fail(`${name}.toml is not valid TOML: ${(e as Error).message}`);
   }
 
-  const stackDefaultDir = expandHome((parsed.dir as string) ?? "~");
+  const stackDefaultDir = expandHome((parsed.dir as string) ?? '~');
   const stackShell = parsed.shell as string | undefined;
   const rawTabs = (parsed.tab ?? []) as Partial<Tab>[];
 
@@ -115,7 +115,7 @@ export function parseStack(name: string, raw: string): Stack {
         const sWhere = `${path} split #${j + 1}`;
         if (!s.direction) fail(`${sWhere}: needs a direction.`);
         if (!DIRECTIONS.includes(s.direction)) {
-          fail(`${sWhere}: direction must be one of ${DIRECTIONS.join(", ")}.`);
+          fail(`${sWhere}: direction must be one of ${DIRECTIONS.join(', ')}.`);
         }
         checkTint(s.tint, sWhere);
         checkResume(s.resume, sWhere);
@@ -153,7 +153,7 @@ export async function loadStack(name: string): Promise<Stack> {
     const known = await listStacks();
     fail(
       `no stack "${name}" (looked for ${path})` +
-        (known.length ? `\navailable: ${known.join(", ")}` : ""),
+        (known.length ? `\navailable: ${known.join(', ')}` : ''),
     );
   }
   return parseStack(name, raw!);
@@ -172,8 +172,7 @@ export const tabTitle = (t: Tab): string => t.icon ? `${t.icon} ${t.name}` : t.n
 export const tabCommand = (t: Tab): string | null => t.command ?? null;
 
 /** Does this pane come back when its process dies? */
-export const supervises = (resume: Resume | undefined): boolean =>
-  resume !== undefined && resume !== false;
+export const supervises = (resume: Resume | undefined): boolean => resume !== undefined && resume !== false;
 
 /**
  * The command to come back with, or undefined to reuse the original.
@@ -183,7 +182,7 @@ export const supervises = (resume: Resume | undefined): boolean =>
  * first ran.
  */
 export const resumeCommand = (resume: Resume | undefined): string | undefined =>
-  typeof resume === "string" ? resume : undefined;
+  typeof resume === 'string' ? resume : undefined;
 
 export interface WalkedSplit {
   split: Split;
@@ -217,5 +216,4 @@ export function* walkSplits(
 export const tabPanes = (t: Tab): WalkedSplit[] => [...walkSplits(t.split)];
 
 /** Total panes in a stack, counting each tab's main pane. */
-export const paneCount = (stack: Stack): number =>
-  stack.tabs.reduce((n, t) => n + 1 + tabPanes(t).length, 0);
+export const paneCount = (stack: Stack): number => stack.tabs.reduce((n, t) => n + 1 + tabPanes(t).length, 0);

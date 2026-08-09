@@ -1,20 +1,12 @@
-import { assert, assertEquals, assertThrows } from "@std/assert";
-import {
-  paneCount,
-  parseStack,
-  resumeCommand,
-  supervises,
-  tabCommand,
-  tabPanes,
-  tabTitle,
-} from "../src/config.ts";
-import { GhosttackError } from "../src/errors.ts";
+import { assert, assertEquals, assertThrows } from '@std/assert';
+import { paneCount, parseStack, resumeCommand, supervises, tabCommand, tabPanes, tabTitle } from '../src/config.ts';
+import { GhosttackError } from '../src/errors.ts';
 
-const HOME = Deno.env.get("HOME")!;
+const HOME = Deno.env.get('HOME')!;
 
-Deno.test("parses tabs and splits", () => {
+Deno.test('parses tabs and splits', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `
 dir = "~/Source"
 
@@ -40,9 +32,9 @@ name = "scratch"
   assertEquals(paneCount(stack), 4);
 });
 
-Deno.test("dir precedence is split, then tab, then stack", () => {
+Deno.test('dir precedence is split, then tab, then stack', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `
 dir = "~/stack"
 
@@ -69,61 +61,61 @@ dir  = "~/tab"
   assertEquals(stack.tabs[1].split[1].dir, `${HOME}/split`);
 });
 
-Deno.test("unnamed tabs get positional names", () => {
-  const stack = parseStack("demo", `[[tab]]\n\n[[tab]]\n`);
-  assertEquals(stack.tabs.map((t) => t.name), ["tab1", "tab2"]);
+Deno.test('unnamed tabs get positional names', () => {
+  const stack = parseStack('demo', `[[tab]]\n\n[[tab]]\n`);
+  assertEquals(stack.tabs.map((t) => t.name), ['tab1', 'tab2']);
 });
 
-Deno.test("a bare ~ expands to the home directory", () => {
-  const stack = parseStack("demo", `dir = "~"\n[[tab]]\nname = "a"\n`);
+Deno.test('a bare ~ expands to the home directory', () => {
+  const stack = parseStack('demo', `dir = "~"\n[[tab]]\nname = "a"\n`);
   assertEquals(stack.tabs[0].dir, HOME);
 });
 
-Deno.test("rejects a stack with no tabs", () => {
-  assertThrows(() => parseStack("demo", `dir = "~"`), GhosttackError, "no [[tab]]");
+Deno.test('rejects a stack with no tabs', () => {
+  assertThrows(() => parseStack('demo', `dir = "~"`), GhosttackError, 'no [[tab]]');
 });
 
-Deno.test("rejects duplicate tab names", () => {
+Deno.test('rejects duplicate tab names', () => {
   assertThrows(
-    () => parseStack("demo", `[[tab]]\nname="a"\n\n[[tab]]\nname="a"\n`),
+    () => parseStack('demo', `[[tab]]\nname="a"\n\n[[tab]]\nname="a"\n`),
     GhosttackError,
-    "duplicate tab name",
+    'duplicate tab name',
   );
 });
 
-Deno.test("rejects an unknown split direction", () => {
+Deno.test('rejects an unknown split direction', () => {
   assertThrows(
     () =>
       parseStack(
-        "demo",
+        'demo',
         `[[tab]]\nname="a"\n  [[tab.split]]\n  direction = "sideways"\n`,
       ),
     GhosttackError,
-    "direction must be one of",
+    'direction must be one of',
   );
 });
 
-Deno.test("rejects invalid TOML with the stack name attached", () => {
+Deno.test('rejects invalid TOML with the stack name attached', () => {
   const e = assertThrows(
-    () => parseStack("webapp", `[[tab]\nname=`),
+    () => parseStack('webapp', `[[tab]\nname=`),
     GhosttackError,
   );
-  assert((e as Error).message.includes("webapp.toml"));
+  assert((e as Error).message.includes('webapp.toml'));
 });
 
-Deno.test("icon prefixes the tab title", () => {
+Deno.test('icon prefixes the tab title', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]\nname="api"\nicon="🔵"\n\n[[tab]]\nname="bare"\n`,
   );
-  assertEquals(tabTitle(stack.tabs[0]), "🔵 api");
+  assertEquals(tabTitle(stack.tabs[0]), '🔵 api');
   // No icon means the title is just the name — no stray leading space.
-  assertEquals(tabTitle(stack.tabs[1]), "bare");
+  assertEquals(tabTitle(stack.tabs[1]), 'bare');
 });
 
-Deno.test("keep is readable per tab and per split", () => {
+Deno.test('keep is readable per tab and per split', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
 keep = false
@@ -140,14 +132,14 @@ keep = false
   assertEquals(stack.tabs[0].split[1].keep, undefined);
 });
 
-Deno.test("a tab with no command runs a shell", () => {
-  const stack = parseStack("demo", `[[tab]]\nname="plain"\n`);
+Deno.test('a tab with no command runs a shell', () => {
+  const stack = parseStack('demo', `[[tab]]\nname="plain"\n`);
   assertEquals(tabCommand(stack.tabs[0]), null);
 });
 
-Deno.test("resume decides whether a pane comes back", () => {
+Deno.test('resume decides whether a pane comes back', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "same"
 command = "bin/dev"
@@ -178,14 +170,14 @@ command = "bin/dev"
   // `resume = true` means "come back", not "come back differently" — the pane
   // layer reuses the original command, so there's nothing to override with.
   assertEquals(resumeCommand(same.resume), undefined);
-  assertEquals(resumeCommand(different.resume), "resume-session");
+  assertEquals(resumeCommand(different.resume), 'resume-session');
   assertEquals(resumeCommand(off.resume), undefined);
   assertEquals(resumeCommand(unset.resume), undefined);
 });
 
-Deno.test("resume works per split as well as per tab", () => {
+Deno.test('resume works per split as well as per tab', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
   [[tab.split]]
@@ -201,23 +193,23 @@ name = "a"
   assertEquals(supervises(stack.tabs[0].split[1].resume), false);
 });
 
-Deno.test("rejects a resume that is neither a boolean nor a command", () => {
+Deno.test('rejects a resume that is neither a boolean nor a command', () => {
   assertThrows(
-    () => parseStack("demo", `[[tab]]\nname="a"\nresume=3\n`),
+    () => parseStack('demo', `[[tab]]\nname="a"\nresume=3\n`),
     GhosttackError,
-    "resume must be true, false, or a command string",
+    'resume must be true, false, or a command string',
   );
   // An empty string would silently mean "come back with nothing".
   assertThrows(
-    () => parseStack("demo", `[[tab]]\nname="a"\nresume="  "\n`),
+    () => parseStack('demo', `[[tab]]\nname="a"\nresume="  "\n`),
     GhosttackError,
-    "resume must be true, false, or a command string",
+    'resume must be true, false, or a command string',
   );
 });
 
-Deno.test("nesting decides which pane a split divides", () => {
+Deno.test('nesting decides which pane a split divides', () => {
   const nested = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
   [[tab.split]]
@@ -227,7 +219,7 @@ name = "a"
 `,
   );
   const flat = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
   [[tab.split]]
@@ -249,9 +241,9 @@ name = "a"
   ]);
 });
 
-Deno.test("panes are numbered depth-first, parents before children", () => {
+Deno.test('panes are numbered depth-first, parents before children', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
   [[tab.split]]
@@ -275,9 +267,9 @@ name = "a"
   for (const p of panes) assert(p.parent < p.index);
 });
 
-Deno.test("splits inherit dir down the nesting", () => {
+Deno.test('splits inherit dir down the nesting', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
 dir = "/tab"
@@ -289,14 +281,14 @@ dir = "/tab"
 `,
   );
   const [outer, inner] = tabPanes(stack.tabs[0]);
-  assertEquals(outer.split.dir, "/outer");
+  assertEquals(outer.split.dir, '/outer');
   // The inner split follows its parent split, not the tab.
-  assertEquals(inner.split.dir, "/outer");
+  assertEquals(inner.split.dir, '/outer');
 });
 
-Deno.test("paneCount counts the whole tree", () => {
+Deno.test('paneCount counts the whole tree', () => {
   const stack = parseStack(
-    "demo",
+    'demo',
     `[[tab]]
 name = "a"
   [[tab.split]]

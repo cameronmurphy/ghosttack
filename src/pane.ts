@@ -1,5 +1,5 @@
-import { clearState, type PaneIdentity, type PaneState, writeState } from "./state.ts";
-import { tint } from "./term.ts";
+import { clearState, type PaneIdentity, type PaneState, writeState } from './state.ts';
+import { tint } from './term.ts';
 
 /** A command that dies faster than this is broken, not being restarted. */
 const MIN_UPTIME_SECONDS = 5;
@@ -25,9 +25,9 @@ function spawn(cmd: string[], dir: string): Deno.ChildProcess {
   return new Deno.Command(cmd[0], {
     args: cmd.slice(1),
     cwd: dir,
-    stdin: "inherit",
-    stdout: "inherit",
-    stderr: "inherit",
+    stdin: 'inherit',
+    stdout: 'inherit',
+    stderr: 'inherit',
   }).spawn();
 }
 
@@ -68,11 +68,11 @@ export async function runPane(o: PaneOpts): Promise<never> {
    * your version manager's shims. /bin/sh reads /etc/profile and ~/.profile
    * and nothing else, so a fish or zsh setup silently loses everything.
    */
-  const shell = o.shell ?? Deno.env.get("SHELL") ?? "/bin/sh";
+  const shell = o.shell ?? Deno.env.get('SHELL') ?? '/bin/sh';
 
   /** Hand the pane over to an interactive shell and never come back. */
   const handOver = async (): Promise<never> => {
-    const child = spawn([shell, "-l"], o.dir);
+    const child = spawn([shell, '-l'], o.dir);
     await record(child.pid, true);
     const status = await child.status;
     await clearState(o.identity.key);
@@ -112,7 +112,7 @@ export async function runPane(o: PaneOpts): Promise<never> {
    */
   let interrupted = false;
   try {
-    Deno.addSignalListener("SIGINT", () => {
+    Deno.addSignalListener('SIGINT', () => {
       interrupted = true;
     });
   } catch {
@@ -122,7 +122,7 @@ export async function runPane(o: PaneOpts): Promise<never> {
   // SIGTERM and SIGHUP mean something else is shutting us down. Leaving a
   // record behind would make a dead pane look alive; readState prunes those
   // anyway, but clearing up front keeps `ls` honest immediately.
-  for (const sig of ["SIGTERM", "SIGHUP"] as const) {
+  for (const sig of ['SIGTERM', 'SIGHUP'] as const) {
     try {
       Deno.addSignalListener(sig, () => {
         clearState(o.identity.key).finally(() => Deno.exit(143));
@@ -142,7 +142,7 @@ export async function runPane(o: PaneOpts): Promise<never> {
 
     const startedAt = Date.now();
     // Separate flags, not -lc: fish doesn't bundle short options.
-    const child = spawn([shell, "-l", "-c", cmd], o.dir);
+    const child = spawn([shell, '-l', '-c', cmd], o.dir);
     await record(child.pid, false);
 
     const status = await child.status;

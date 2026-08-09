@@ -1,6 +1,6 @@
 /** A problem with a stack file or the arguments given to ghosttack. */
 export class GhosttackError extends Error {
-  override name = "GhosttackError";
+  override name = 'GhosttackError';
 }
 
 /**

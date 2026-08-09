@@ -1,6 +1,6 @@
-import { fromFileUrl, join } from "@std/path";
+import { fromFileUrl, join } from '@std/path';
 
-export const HOME = Deno.env.get("HOME") ?? "";
+export const HOME = Deno.env.get('HOME') ?? '';
 
 /**
  * Absolute path to ghosttack itself.
@@ -14,9 +14,7 @@ export const HOME = Deno.env.get("HOME") ?? "";
  */
 export function selfPath(): string {
   const exec = Deno.execPath();
-  const self = exec.endsWith("/deno")
-    ? fromFileUrl(new URL("../main.ts", import.meta.url))
-    : exec;
+  const self = exec.endsWith('/deno') ? fromFileUrl(new URL('../main.ts', import.meta.url)) : exec;
   try {
     return Deno.realPathSync(self);
   } catch {
@@ -32,13 +30,13 @@ export function selfPath(): string {
  * overrides both, which is also what the tests use.
  */
 export const stackDir = (): string =>
-  Deno.env.get("GHOSTTACK_CONFIG_DIR") ??
-    join(Deno.env.get("XDG_CONFIG_HOME") ?? join(HOME, ".config"), "ghosttack");
+  Deno.env.get('GHOSTTACK_CONFIG_DIR') ??
+    join(Deno.env.get('XDG_CONFIG_HOME') ?? join(HOME, '.config'), 'ghosttack');
 
 export const stackPath = (name: string): string => join(stackDir(), `${name}.toml`);
 
 /** The stack run when ghosttack is given no arguments. */
-export const DEFAULT_STACK = "default";
+export const DEFAULT_STACK = 'default';
 
 export async function stackExists(name: string): Promise<boolean> {
   try {
@@ -53,7 +51,7 @@ export async function listStacks(): Promise<string[]> {
   const out: string[] = [];
   try {
     for await (const entry of Deno.readDir(stackDir())) {
-      if (entry.isFile && entry.name.endsWith(".toml")) {
+      if (entry.isFile && entry.name.endsWith('.toml')) {
         out.push(entry.name.slice(0, -5));
       }
     }
@@ -65,10 +63,9 @@ export async function listStacks(): Promise<string[]> {
 
 /** Expand a leading ~ against $HOME. */
 export function expandHome(p: string): string {
-  if (p === "~") return HOME;
-  return p.startsWith("~/") ? join(HOME, p.slice(2)) : p;
+  if (p === '~') return HOME;
+  return p.startsWith('~/') ? join(HOME, p.slice(2)) : p;
 }
 
 /** Render a path for display, shortening $HOME back to ~. */
-export const tilde = (p: string): string =>
-  HOME && p.startsWith(HOME) ? `~${p.slice(HOME.length)}` : p;
+export const tilde = (p: string): string => HOME && p.startsWith(HOME) ? `~${p.slice(HOME.length)}` : p;

@@ -1,14 +1,7 @@
-import {
-  findTab,
-  loadStack,
-  resumeCommand,
-  supervises,
-  tabCommand,
-  tabPanes,
-} from "../config.ts";
-import { fail } from "../errors.ts";
-import { runPane } from "../pane.ts";
-import { paneKey } from "../state.ts";
+import { findTab, loadStack, resumeCommand, supervises, tabCommand, tabPanes } from '../config.ts';
+import { fail } from '../errors.ts';
+import { runPane } from '../pane.ts';
+import { paneKey } from '../state.ts';
 
 /** Run a tab's main pane. This is what a generated tab executes. */
 export async function cmdRun(stackName: string, tabName: string) {
@@ -33,7 +26,7 @@ export async function cmdRun(stackName: string, tabName: string) {
       tab: tab.name,
       pane: 0,
       dir: tab.dir,
-      cmd: command ?? "shell",
+      cmd: command ?? 'shell',
     },
   });
 }
@@ -68,7 +61,7 @@ export async function cmdPane(
       tab: tab.name,
       pane: idx,
       dir: split.dir,
-      cmd: split.command ?? "shell",
+      cmd: split.command ?? 'shell',
     },
   });
 }

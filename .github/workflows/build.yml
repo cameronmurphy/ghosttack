@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    tags: ["v*"]
+    tags: ['v*']
 
 jobs:
   # Every path into this workflow lints and tests first, so a tag can't build or release what main

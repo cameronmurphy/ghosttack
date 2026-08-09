@@ -11,12 +11,15 @@ macOS only: tabs and splits are created through Ghostty's AppleScript dictionary
 
 ## Install
 
-Download a binary from [releases](https://github.com/cameronmurphy/ghosttack/releases) and put it on your `PATH`:
+Grab a binary with `curl` and put it on your `PATH`:
 
 ```shell
-sudo mv ghosttack-aarch64-apple-darwin /opt/homebrew/bin/ghosttack
-sudo chmod +x /opt/homebrew/bin/ghosttack
+curl -fsSLo ghosttack \
+  https://github.com/cameronmurphy/ghosttack/releases/latest/download/ghosttack-aarch64-apple-darwin
+sudo install -m 755 ghosttack /opt/homebrew/bin/ghosttack
 ```
+
+On an Intel Mac swap in `ghosttack-x86_64-apple-darwin`.
 
 Or run it straight from JSR:
 

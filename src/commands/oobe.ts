@@ -54,5 +54,10 @@ name one ${DEFAULT_STACK}.toml and it becomes what you get from a bare
 
 other commands:
   ghosttack ls [stack]           show stacks and which panes are live
-  ghosttack restart [stack]      restart panes that come back`);
+  ghosttack restart [stack]      restart panes that come back
+
+options:
+  --dry-run                      print the AppleScript instead of running it
+  --close                        close the tab you ran this from once it's up
+  --no-close                     keep it, overriding close = true in the stack`);
 }

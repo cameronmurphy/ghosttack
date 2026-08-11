@@ -18,6 +18,9 @@ import { cmdUp } from './src/commands/up.ts';
 /** Subcommand names can't double as stack names. */
 const RESERVED = ['ls', 'restart', 'run', 'pane', 'help'];
 
+/** Flags that stand in for a stack name, building the default stack. */
+const BARE_FLAGS = ['--dry-run', '--close', '--no-close'];
+
 /**
  * With no stack named, build default.toml — the stack you start the day with.
  * Without one, there's nothing to build, so introduce yourself instead.
@@ -60,7 +63,7 @@ async function dispatch(args: string[]) {
 
     default:
       // `ghosttack --dry-run` should preview the default stack, not complain.
-      if (first === '--dry-run') return await cmdDefault(args);
+      if (BARE_FLAGS.includes(first)) return await cmdDefault(args);
       if (first.startsWith('-')) {
         throw new GhosttackError(`unknown option "${first}".`);
       }

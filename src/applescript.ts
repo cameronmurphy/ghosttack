@@ -12,18 +12,38 @@ const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
  */
 const sh = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
 
+/** Extras that change how a stack is assembled, rather than what it contains. */
+export type BuildOptions = {
+  /** Close the tab ghosttack was invoked from once the stack is built. */
+  closeOrigin?: boolean;
+};
+
 /**
  * Build the AppleScript that assembles a stack.
  *
  * Ghostty 1.3 exposes a real AppleScript dictionary, so tabs and splits are
  * created through supported API calls rather than synthetic keystrokes.
  */
-export function buildAppleScript(self: string, stack: Stack): string {
+export function buildAppleScript(
+  self: string,
+  stack: Stack,
+  opts: BuildOptions = {},
+): string {
   const L: string[] = [
     'tell application "Ghostty"',
     '  activate',
     '  set hadWindow to (count of windows) > 0',
   ];
+
+  // Grab the launching tab before any new ones exist, while it is still the
+  // selected tab of the front window. There is no env var naming the surface a
+  // process is running in, so position is the only handle on it.
+  if (opts.closeOrigin) {
+    L.push(
+      '  set originTab to missing value',
+      '  if hadWindow then set originTab to selected tab of front window',
+    );
+  }
 
   const surface = (dir: string, command: string) => [
     '  set cfg to new surface configuration',
@@ -79,6 +99,16 @@ export function buildAppleScript(self: string, stack: Stack): string {
       );
     }
   });
+
+  // Last, so a failure building the stack leaves the launching tab alive to
+  // read the error in. Closing a tab that isn't selected leaves the selection
+  // alone, so the pane the stack finished on keeps focus.
+  if (opts.closeOrigin) {
+    L.push(
+      '',
+      '  if originTab is not missing value then close tab originTab',
+    );
+  }
 
   L.push('end tell');
   return L.join('\n');

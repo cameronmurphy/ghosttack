@@ -19,6 +19,10 @@ export const EXAMPLE_STACK = `# ghosttack stack file.
 # Default working directory for tabs that don't set their own.
 dir = "~"
 
+# Close the tab you launched from once the stack is up, leaving only the panes
+# below. Needs an interactive Ghostty tab; --close and --no-close override it.
+# close = true
+
 # ---------------------------------------------------------------------------
 # A tab with three panes: a shell on the left, two stacked on the right.
 #

@@ -35,9 +35,24 @@ The first `ghosttack` writes an example stack and explains itself.
 ghosttack                      build default.toml, or introduce itself if there isn't one
 ghosttack webapp               build ~/.config/ghosttack/webapp.toml
 ghosttack webapp --dry-run     print the AppleScript instead of running it
+ghosttack webapp --close       build it, then close the tab you ran this from
+ghosttack webapp --no-close    build it and keep that tab, whatever the stack says
 ghosttack ls [stack]           show stacks and which panes are live
 ghosttack restart [stack]      restart panes that come back
 ```
+
+### Closing the tab you started from
+
+`--close` gets rid of the tab you launched from once the stack is up, leaving only the panes the stack describes. It
+closes whether or not something is still running there, and it goes last — if building fails the tab stays put, with the
+error still on screen.
+
+Put `close = true` at the top of a stack to get it every time, which is what you want for a `default.toml` you run each
+morning. `--close` and `--no-close` override the file for a single run.
+
+Finding the tab means taking the selected tab of the front window, which is only the right answer for someone typing
+into it. So this needs an interactive Ghostty terminal: run from another terminal, a script or a coding agent, `--close`
+refuses outright and `close = true` says so and builds the stack anyway.
 
 Stacks live in `~/.config/ghosttack` (or `$XDG_CONFIG_HOME/ghosttack`). Name one `default.toml` and a bare `ghosttack`
 builds it.
@@ -79,6 +94,7 @@ command = "docker compose up"
 | `keep`      | tab, split        | Leave a shell in the pane when the command finishes. On by default.                                             |
 | `shell`     | stack, tab, split | Login shell to run commands under. Defaults to `$SHELL`.                                                        |
 | `tint`      | tab, split        | Hex background colour for the pane interior.                                                                    |
+| `close`     | stack             | Close the tab you launched from once the stack is up. `--close` / `--no-close` override it.                     |
 
 ### Nesting is the layout
 

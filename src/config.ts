@@ -56,6 +56,11 @@ export interface Tab {
 export interface Stack {
   name: string;
   dir: string;
+  /**
+   * Close the tab ghosttack was launched from once the stack is up. Off by
+   * default; `--close` turns it on for one run and `--no-close` turns it off.
+   */
+  close?: boolean;
   tabs: Tab[];
 }
 
@@ -83,6 +88,11 @@ export function parseStack(name: string, raw: string): Stack {
   const stackDefaultDir = expandHome((parsed.dir as string) ?? '~');
   const stackShell = parsed.shell as string | undefined;
   const rawTabs = (parsed.tab ?? []) as Partial<Tab>[];
+
+  if (parsed.close !== undefined && typeof parsed.close !== 'boolean') {
+    fail(`${name}.toml: close must be true or false.`);
+  }
+  const close = parsed.close as boolean | undefined;
 
   if (!Array.isArray(rawTabs) || rawTabs.length === 0) {
     fail(`${name}.toml defines no [[tab]] entries.`);
@@ -141,7 +151,7 @@ export function parseStack(name: string, raw: string): Stack {
     };
   });
 
-  return { name, dir: stackDefaultDir, tabs };
+  return { name, dir: stackDefaultDir, close, tabs };
 }
 
 export async function loadStack(name: string): Promise<Stack> {

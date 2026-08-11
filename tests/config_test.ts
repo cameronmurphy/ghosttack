@@ -303,3 +303,18 @@ name = "b"
   // tab a: main + 2 splits, tab b: main only
   assertEquals(paneCount(stack), 4);
 });
+
+Deno.test('close is read off the stack', () => {
+  assertEquals(parseStack('demo', `close = true\n[[tab]]\nname = "a"\n`).close, true);
+  assertEquals(parseStack('demo', `close = false\n[[tab]]\nname = "a"\n`).close, false);
+  // Absent stays undefined so a flag can tell "unset" from "explicitly off".
+  assertEquals(parseStack('demo', `[[tab]]\nname = "a"\n`).close, undefined);
+});
+
+Deno.test('close has to be a boolean', () => {
+  assertThrows(
+    () => parseStack('demo', `close = "yes"\n[[tab]]\nname = "a"\n`),
+    Error,
+    'close must be true or false',
+  );
+});

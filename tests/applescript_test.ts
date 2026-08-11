@@ -159,3 +159,34 @@ Deno.test("a tab name can't inject a second shell command", () => {
   // The semicolon stays inside the quotes rather than ending the command.
   assert(!script.includes(`ghosttack run demo a; touch`));
 });
+
+Deno.test('--close captures the launching tab before any new ones exist', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack, { closeOrigin: true });
+
+  // Captured before the first `new tab`, or it would grab a tab we just built.
+  const captured = script.indexOf('set originTab to selected tab of front window');
+  const built = script.indexOf('new tab in win');
+  assert(captured !== -1);
+  assert(captured < built, 'origin tab must be captured before tabs are created');
+
+  // Closed last, so a failure part way leaves the tab alive to read the error.
+  assertStringIncludes(script, 'if originTab is not missing value then close tab originTab');
+  assert(script.indexOf('close tab originTab') > script.lastIndexOf('perform action'));
+});
+
+Deno.test('without --close nothing is closed', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack);
+  assert(!script.includes('close tab'));
+  assert(!script.includes('originTab'));
+});
+
+Deno.test('--close survives a first run with no window open', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack, { closeOrigin: true });
+  // No window means no launching tab, so the close is guarded rather than
+  // reaching for a tab that was never there.
+  assertStringIncludes(script, 'set originTab to missing value');
+  assertStringIncludes(script, 'if hadWindow then set originTab to');
+});

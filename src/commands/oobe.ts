@@ -55,6 +55,8 @@ name one ${DEFAULT_STACK}.toml and it becomes what you get from a bare
 other commands:
   ghosttack ls [stack]           show stacks and which panes are live
   ghosttack restart [stack]      restart panes that come back
+  ghosttack --self-update        replace this binary with the latest release
+  ghosttack --version            print the version
 
 options:
   --dry-run                      print the AppleScript instead of running it

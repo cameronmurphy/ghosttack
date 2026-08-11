@@ -11,7 +11,7 @@
     "dev": "deno run -A main.ts",
     "check": "deno check main.ts tests/",
     "test": "deno test -A tests/",
-    "build": "deno compile --allow-read --allow-write --allow-run --allow-env --output dist/ghosttack main.ts",
+    "build": "deno compile --allow-read --allow-write --allow-run --allow-env --allow-net=api.github.com,github.com,release-assets.githubusercontent.com,objects.githubusercontent.com --output dist/ghosttack main.ts",
     "verify": "deno fmt --check && deno lint && deno task check && deno task test"
   },
   "imports": {

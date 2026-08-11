@@ -39,7 +39,25 @@ ghosttack webapp --close       build it, then close the tab you ran this from
 ghosttack webapp --no-close    build it and keep that tab, whatever the stack says
 ghosttack ls [stack]           show stacks and which panes are live
 ghosttack restart [stack]      restart panes that come back
+ghosttack --self-update        replace this binary with the latest release
+ghosttack --version            print the version
 ```
+
+### Keeping up to date
+
+`--self-update` asks GitHub for the latest release, and if it's newer than what you're running, downloads the build for
+your architecture and replaces the binary in place:
+
+```shell
+ghosttack --self-update
+```
+
+It writes the new binary beside the old one and renames it over the top, which is atomic and works on a file that is
+currently executing. Nothing is moved into place until the download has arrived whole and looks like a macOS binary, so
+a flaky connection can't leave you with a ghosttack that won't start. If the install directory isn't yours to write to
+it'll say so, and `sudo ghosttack --self-update` finishes the job.
+
+Installed from JSR rather than a release binary? There's nothing to replace — re-run the `deno install` line above.
 
 ### Closing the tab you started from
 

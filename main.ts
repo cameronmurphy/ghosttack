@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-env
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-env --allow-net=api.github.com,github.com,release-assets.githubusercontent.com,objects.githubusercontent.com
 /**
  * ghosttack — spin up a whole Ghostty workspace from one file.
  *
@@ -13,7 +13,9 @@ import { cmdLs } from './src/commands/ls.ts';
 import { cmdOobe } from './src/commands/oobe.ts';
 import { cmdPane, cmdRun } from './src/commands/run.ts';
 import { cmdRestart } from './src/commands/restart.ts';
+import { cmdSelfUpdate } from './src/selfupdate.ts';
 import { cmdUp } from './src/commands/up.ts';
+import { VERSION } from './src/version.ts';
 
 /** Subcommand names can't double as stack names. */
 const RESERVED = ['ls', 'restart', 'run', 'pane', 'help'];
@@ -41,6 +43,14 @@ async function dispatch(args: string[]) {
     case '--help':
     case '-h':
       return await cmdOobe();
+
+    case '--version':
+    case '-v':
+      console.log(VERSION);
+      return;
+
+    case '--self-update':
+      return await cmdSelfUpdate(rest);
 
     case 'ls':
       return await cmdLs(rest);

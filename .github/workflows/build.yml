@@ -36,6 +36,7 @@ jobs:
       - name: Build
         run: |
           deno compile --allow-read --allow-write --allow-run --allow-env \
+            --allow-net=api.github.com,github.com,release-assets.githubusercontent.com,objects.githubusercontent.com \
             --target ${{ matrix.target }} --output dist/ghosttack-${{ matrix.target }} main.ts
 
       - name: Upload compiled app

@@ -53,9 +53,18 @@ ghosttack --self-update
 ```
 
 It writes the new binary beside the old one and renames it over the top, which is atomic and works on a file that is
-currently executing. Nothing is moved into place until the download has arrived whole and looks like a macOS binary, so
-a flaky connection can't leave you with a ghosttack that won't start. If the install directory isn't yours to write to
-it'll say so, and `sudo ghosttack --self-update` finishes the job.
+currently executing. Nothing is moved into place until the download has arrived whole, looks like a macOS binary, and
+matches its SHA-256 in the `SHA256SUMS` published with the release — so a flaky connection can't leave you with a
+ghosttack that won't start. A release without that file, or a hash that doesn't line up, stops the update rather than
+falling back to a weaker check. If the install directory isn't yours to write to it'll say so, and
+`sudo ghosttack --self-update` finishes the job.
+
+To check a download by hand:
+
+```shell
+curl -fsSLO https://github.com/cameronmurphy/ghosttack/releases/latest/download/SHA256SUMS
+sha256sum --ignore-missing -c SHA256SUMS
+```
 
 Installed from JSR rather than a release binary? There's nothing to replace — re-run the `deno install` line above.
 

@@ -5,6 +5,9 @@ import { VERSION } from './version.ts';
 const REPO = 'cameronmurphy/ghosttack';
 const LATEST = `https://api.github.com/repos/${REPO}/releases/latest`;
 
+/** The checksum manifest the release job publishes alongside the binaries. */
+const SUMS = 'SHA256SUMS';
+
 /** What a release looks like, as far as this cares. */
 interface Release {
   tag_name: string;
@@ -39,6 +42,27 @@ export function compareVersions(a: string, b: string): number {
 
 /** The release asset this machine needs. */
 export const assetName = (target = Deno.build.target): string => `ghosttack-${target}`;
+
+/** Hex SHA-256 of a downloaded binary. */
+export async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes as BufferSource);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Pull one file's hash out of a `sha256sum` manifest.
+ *
+ * Lines are `<hash>  <name>`, and a name may carry a leading `*` marking
+ * binary mode. Returns null when the file isn't listed, which is a refusal
+ * rather than a pass.
+ */
+export function checksumFor(manifest: string, name: string): string | null {
+  for (const line of manifest.split('\n')) {
+    const m = line.trim().match(/^([0-9a-fA-F]{64})\s+\*?(.+)$/);
+    if (m && m[2].trim() === name) return m[1].toLowerCase();
+  }
+  return null;
+}
 
 async function fetchLatest(): Promise<Release> {
   let res: Response;
@@ -103,6 +127,28 @@ export async function cmdSelfUpdate(argv: string[]) {
   }
   if (!looksExecutable(bytes)) {
     fail(`what downloaded isn't a macOS binary — leaving ghosttack alone.`);
+  }
+
+  // Refuse rather than fall back to the weaker checks. Every release that can
+  // be updated to is newer than this build, so it publishes SHA256SUMS too;
+  // a missing or mismatched manifest means something is wrong, not old.
+  const sums = release.assets.find((a) => a.name === SUMS);
+  if (!sums) {
+    fail(`release ${release.tag_name} publishes no ${SUMS} to check against.`);
+  }
+  const manifest = await fetch(sums!.browser_download_url);
+  if (!manifest.ok) {
+    fail(`downloading ${SUMS} failed: ${manifest.status} ${manifest.statusText}`);
+  }
+  const expected = checksumFor(await manifest.text(), wanted);
+  if (!expected) fail(`${SUMS} doesn't list ${wanted} — leaving ghosttack alone.`);
+
+  const actual = await sha256Hex(bytes);
+  if (actual !== expected) {
+    fail(
+      `checksum mismatch for ${wanted} — leaving ghosttack alone.\n` +
+        `  expected ${expected}\n  got      ${actual}`,
+    );
   }
 
   // Beside the target, so the rename stays on one filesystem and stays atomic.

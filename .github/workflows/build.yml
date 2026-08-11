@@ -60,6 +60,10 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Checksum the binaries
+        working-directory: dist
+        run: sha256sum ghosttack-* > SHA256SUMS
+
       - name: Publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -67,7 +71,7 @@ jobs:
         run: |
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 ||
             gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --generate-notes
-          gh release upload "$TAG" dist/ghosttack-* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$TAG" dist/ghosttack-* dist/SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
 
   publish:
     if: startsWith(github.event.workflow_run.head_branch, 'v')

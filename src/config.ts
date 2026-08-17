@@ -61,6 +61,16 @@ export interface Stack {
    * default; `--close` turns it on for one run and `--no-close` turns it off.
    */
   close?: boolean;
+  /**
+   * Put the selection back on the launching tab once the stack is up, rather
+   * than leaving it wherever building finished. On by default; `--stay` and
+   * `--no-stay` override it for a single run.
+   *
+   * Composes with `close`: the tab is selected first and closed second, so the
+   * selection lands wherever Ghostty sends it next rather than on the far end
+   * of the stack.
+   */
+  stay?: boolean;
   tabs: Tab[];
 }
 
@@ -89,10 +99,13 @@ export function parseStack(name: string, raw: string): Stack {
   const stackShell = parsed.shell as string | undefined;
   const rawTabs = (parsed.tab ?? []) as Partial<Tab>[];
 
-  if (parsed.close !== undefined && typeof parsed.close !== 'boolean') {
-    fail(`${name}.toml: close must be true or false.`);
+  for (const key of ['close', 'stay'] as const) {
+    if (parsed[key] !== undefined && typeof parsed[key] !== 'boolean') {
+      fail(`${name}.toml: ${key} must be true or false.`);
+    }
   }
   const close = parsed.close as boolean | undefined;
+  const stay = parsed.stay as boolean | undefined;
 
   if (!Array.isArray(rawTabs) || rawTabs.length === 0) {
     fail(`${name}.toml defines no [[tab]] entries.`);
@@ -151,7 +164,7 @@ export function parseStack(name: string, raw: string): Stack {
     };
   });
 
-  return { name, dir: stackDefaultDir, close, tabs };
+  return { name, dir: stackDefaultDir, close, stay, tabs };
 }
 
 export async function loadStack(name: string): Promise<Stack> {

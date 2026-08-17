@@ -171,8 +171,27 @@ Deno.test('--close captures the launching tab before any new ones exist', () => 
   assert(captured < built, 'origin tab must be captured before tabs are created');
 
   // Closed last, so a failure part way leaves the tab alive to read the error.
-  assertStringIncludes(script, 'if originTab is not missing value then close tab originTab');
+  assertStringIncludes(script, 'close tab originTab');
   assert(script.indexOf('close tab originTab') > script.lastIndexOf('perform action'));
+});
+
+Deno.test('closing selects the launching tab first, so the selection lands beside it', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack, { closeOrigin: true, selectOrigin: true });
+
+  // Order is the whole point: closing the selected tab hands the selection to
+  // the tab next to it, where closing an unselected one leaves it on the stack.
+  const selected = script.indexOf('select tab originTab');
+  const closed = script.indexOf('close tab originTab');
+  assert(selected !== -1 && closed !== -1);
+  assert(selected < closed, 'the launching tab must be selected before it is closed');
+});
+
+Deno.test('--no-stay with --close leaves the selection on the stack', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack, { closeOrigin: true, selectOrigin: false });
+  assertStringIncludes(script, 'close tab originTab');
+  assert(!script.includes('select tab'));
 });
 
 Deno.test('without --close nothing is closed', () => {
@@ -189,4 +208,27 @@ Deno.test('--close survives a first run with no window open', () => {
   // reaching for a tab that was never there.
   assertStringIncludes(script, 'set originTab to missing value');
   assertStringIncludes(script, 'if hadWindow then set originTab to');
+});
+
+Deno.test('staying puts the selection back on the launching tab', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n[[tab]]\nname = "b"\n`);
+  const script = buildAppleScript(SELF, stack, { selectOrigin: true });
+
+  // Same capture as a close: before anything new exists, and guarded on there
+  // having been a window to take it from.
+  const captured = script.indexOf('set originTab to selected tab of front window');
+  assert(captured !== -1 && captured < script.indexOf('new tab in win'));
+  assertStringIncludes(script, 'if hadWindow then set originTab to');
+
+  // Last, after every tab has selected itself on the way in.
+  assertStringIncludes(script, 'select tab originTab');
+  assert(script.indexOf('select tab originTab') > script.lastIndexOf('new tab in win'));
+  assert(!script.includes('close tab'));
+});
+
+Deno.test('--no-stay leaves the selection wherever the build finished', () => {
+  const stack = parseStack('demo', `[[tab]]\nname = "a"\n`);
+  const script = buildAppleScript(SELF, stack, { selectOrigin: false });
+  assert(!script.includes('select tab'));
+  assert(!script.includes('originTab'));
 });

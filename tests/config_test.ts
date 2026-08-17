@@ -318,3 +318,27 @@ Deno.test('close has to be a boolean', () => {
     'close must be true or false',
   );
 });
+
+Deno.test('stay is read off the stack', () => {
+  assertEquals(parseStack('demo', `stay = false\n[[tab]]\nname = "a"\n`).stay, false);
+  assertEquals(parseStack('demo', `stay = true\n[[tab]]\nname = "a"\n`).stay, true);
+  // Undefined rather than true: the default lives in up.ts, and the file only
+  // gets a say when it explicitly turns staying off.
+  assertEquals(parseStack('demo', `[[tab]]\nname = "a"\n`).stay, undefined);
+});
+
+Deno.test('stay has to be a boolean', () => {
+  assertThrows(
+    () => parseStack('demo', `stay = "yes"\n[[tab]]\nname = "a"\n`),
+    Error,
+    'stay must be true or false',
+  );
+});
+
+Deno.test('close and stay are not exclusive', () => {
+  // Together they mean "select the launching tab, then close it", which is how
+  // the selection ends up beside where you were instead of at the far end.
+  const stack = parseStack('demo', `close = true\nstay = true\n[[tab]]\nname = "a"\n`);
+  assertEquals(stack.close, true);
+  assertEquals(stack.stay, true);
+});

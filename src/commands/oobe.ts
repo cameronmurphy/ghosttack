@@ -61,5 +61,8 @@ other commands:
 options:
   --dry-run                      print the AppleScript instead of running it
   --close                        close the tab you ran this from once it's up
-  --no-close                     keep it, overriding close = true in the stack`);
+  --no-close                     keep it, overriding close = true in the stack config
+  --no-stay                      leave the selection on the stack it just built
+  --stay                         keep it on the tab you ran this from,
+                                 overriding stay = false in the stack config`);
 }

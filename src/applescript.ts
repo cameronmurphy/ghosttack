@@ -16,6 +16,8 @@ const sh = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
 export type BuildOptions = {
   /** Close the tab ghosttack was invoked from once the stack is built. */
   closeOrigin?: boolean;
+  /** Put the selection back on that tab instead of leaving it on the stack. */
+  selectOrigin?: boolean;
 };
 
 /**
@@ -38,7 +40,7 @@ export function buildAppleScript(
   // Grab the launching tab before any new ones exist, while it is still the
   // selected tab of the front window. There is no env var naming the surface a
   // process is running in, so position is the only handle on it.
-  if (opts.closeOrigin) {
+  if (opts.closeOrigin || opts.selectOrigin) {
     L.push(
       '  set originTab to missing value',
       '  if hadWindow then set originTab to selected tab of front window',
@@ -100,14 +102,22 @@ export function buildAppleScript(
     }
   });
 
-  // Last, so a failure building the stack leaves the launching tab alive to
-  // read the error in. Closing a tab that isn't selected leaves the selection
-  // alone, so the pane the stack finished on keeps focus.
-  if (opts.closeOrigin) {
-    L.push(
-      '',
-      '  if originTab is not missing value then close tab originTab',
-    );
+  // Every `new tab` selects itself, so the selection walks along the stack as
+  // it is built and lands on the last tab. Nothing prevents that — the tabs
+  // have to be created — so put it back at the end instead.
+  //
+  // Selecting before closing is what makes the two work together: closing the
+  // selected tab hands the selection to whatever Ghostty thinks comes next,
+  // which is the tab beside where you were rather than the far end of a stack
+  // you didn't ask to be looking at.
+  //
+  // Last either way, so a failure building the stack leaves the launching tab
+  // alive with the error still on screen.
+  if (opts.selectOrigin || opts.closeOrigin) {
+    L.push('', '  if originTab is not missing value then');
+    if (opts.selectOrigin) L.push('    select tab originTab');
+    if (opts.closeOrigin) L.push('    close tab originTab');
+    L.push('  end if');
   }
 
   L.push('end tell');

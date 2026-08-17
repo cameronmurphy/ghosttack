@@ -37,6 +37,8 @@ ghosttack webapp               build ~/.config/ghosttack/webapp.toml
 ghosttack webapp --dry-run     print the AppleScript instead of running it
 ghosttack webapp --close       build it, then close the tab you ran this from
 ghosttack webapp --no-close    build it and keep that tab, whatever the stack says
+ghosttack webapp --no-stay     build it and leave the selection on the new tabs
+ghosttack webapp --stay        build it and keep that tab selected, whatever the stack says
 ghosttack ls [stack]           show stacks and which panes are live
 ghosttack restart [stack]      restart panes that come back
 ghosttack --self-update        replace this binary with the latest release
@@ -122,6 +124,7 @@ command = "docker compose up"
 | `shell`     | stack, tab, split | Login shell to run commands under. Defaults to `$SHELL`.                                                        |
 | `tint`      | tab, split        | Hex background colour for the pane interior.                                                                    |
 | `close`     | stack             | Close the tab you launched from once the stack is up. `--close` / `--no-close` override it.                     |
+| `stay`      | stack             | Keep the tab you launched from selected, and select it before `close` closes it. On unless set to `false`.      |
 
 ### Nesting is the layout
 

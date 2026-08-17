@@ -21,7 +21,7 @@ import { VERSION } from './src/version.ts';
 const RESERVED = ['ls', 'restart', 'run', 'pane', 'help'];
 
 /** Flags that stand in for a stack name, building the default stack. */
-const BARE_FLAGS = ['--dry-run', '--close', '--no-close'];
+const BARE_FLAGS = ['--dry-run', '--close', '--no-close', '--stay', '--no-stay'];
 
 /**
  * With no stack named, build default.toml — the stack you start the day with.

@@ -14,9 +14,9 @@ macOS only: tabs and splits are created through Ghostty's AppleScript dictionary
 Grab a binary with `curl` and put it on your `PATH`:
 
 ```shell
-curl -fsSLo ghosttack \
-  https://github.com/cameronmurphy/ghosttack/releases/latest/download/ghosttack-aarch64-apple-darwin
-sudo install -m 755 ghosttack /opt/homebrew/bin/ghosttack
+curl -fsSLo ghosttack https://github.com/cameronmurphy/ghosttack/releases/latest/download/ghosttack-aarch64-apple-darwin
+sudo mkdir -p /usr/local/bin
+sudo install -m 755 ghosttack /usr/local/bin/ghosttack
 ```
 
 On an Intel Mac swap in `ghosttack-x86_64-apple-darwin`.

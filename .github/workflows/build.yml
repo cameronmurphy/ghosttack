@@ -8,14 +8,13 @@ on:
   workflow_run:
     workflows: ['Lint and test']
     types: [completed]
+    # workflow_run has no tag filter, but a tag push reports the tag as its head_branch,
+    # so this matches v1.2.3 and not main.
+    branches: ['v*']
 
 jobs:
   build:
-    if: >-
-      ${{ !github.event.workflow_run
-      || (github.event.workflow_run.conclusion == 'success'
-      && (github.event.workflow_run.head_branch == 'main'
-      || startsWith(github.event.workflow_run.head_branch, 'v'))) }}
+    if: ${{ !github.event.workflow_run || github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-latest
 
     strategy:
